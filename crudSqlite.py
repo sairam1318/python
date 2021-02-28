@@ -30,7 +30,6 @@ def addRecord():
 
 def readRecords():
 
-	headers = connection.execute(".headers on")
 	cursor = connection.execute("SELECT * FROM BANK_CUSTOMER_DETAILS")
 
 	for data in cursor:
@@ -68,10 +67,8 @@ def deleteRecord():
 	cursor = connection.execute("SELECT * FROM BANK_CUSTOMER_DETAILS")
 	for data in cursor:
 		if str(data[0]) == recordToBeDeleted:
-			sql_delete_query = """DELETE from BANK_CUSTOMER_DETAILS where ACCOUNT_NUM = ?"""
-			cursor.execute(sql_delete_query, (data[0],))
+			cursor.execute("DELETE from BANK_CUSTOMER_DETAILS where ACCOUNT_NUM = ?", (data[0],))
 	
-
 	connection.commit()
 
 
