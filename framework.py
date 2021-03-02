@@ -12,7 +12,6 @@ def getFields():
 	metadata = connection.execute("PRAGMA TABLE_INFO({})".format(tableName))
 	for field in metadata:
 		fields.append(field[1])
-	print(fields)
 	
 
 def addRecord():
