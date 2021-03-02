@@ -61,6 +61,11 @@ def updateRecord():
 		updateData = input("Enter {} to update: ".format(fields[choice]))
 		cursor.execute("UPDATE {} SET {} = '{}' WHERE {} = '{}' ".format(tableName, fields[choice], updateData, fields[0], dataToBeUpdated))
 		connection.commit()
+		if cursor.rowcount >= 1:
+			print("Updation successful.")
+		else:
+			print("Updation Error")
+
 		print("\n{} Number of row(s) affected".format(cursor.rowcount))
 
 	except Exception as e:
@@ -77,7 +82,6 @@ def deleteRecord():
 
 	except Exception as e:
 		print("Error ", e)
-		cursor.rollback()
 
 
 def exitMenu():
