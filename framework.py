@@ -1,15 +1,16 @@
 # CRUD Operation using sqlite3
 import sqlite3
-dataBaseName = "flow.db"
-tableName = "FLOW"
+dataBaseName = "sample.db"
+tableName = "SAMPLE_TABLE"
 menuFileName = "menu.cfg"
 
 connection = sqlite3.connect(dataBaseName) 
+cursor = connection.cursor()
 fields = []
 
 def getFields():
 
-	metadata = connection.execute("PRAGMA TABLE_INFO({})".format(tableName))
+	metadata = cursor.execute("PRAGMA TABLE_INFO({})".format(tableName))
 	for field in metadata:
 		fields.append(field[1])
 	
@@ -24,63 +25,60 @@ def addRecord():
 		else:
 			values += "\'" + storeData + "\', "
 
-	connection.execute("INSERT INTO {} VALUES ({})".format(tableName, values))
+	cursor.execute("INSERT INTO {} VALUES ({})".format(tableName, values))
 	connection.commit()
 
 def readRecords():
 
-	cursor = connection.execute("SELECT * FROM {}".format(tableName))
+	records = cursor.execute("SELECT * FROM {}".format(tableName))
 
-	for data in cursor:
-		print("\n")
-		for item in data:
-			print(item, end = " ")
+	for data in records:
+
+		if data[-1] == '0':
+			pass 
+		else:
+			print("\n")
+			for item in data:
+				print(item + " ", end = " ")
 
 
 def updateRecord():
 
-	dataToBeUpdated = input("Enter " + fields[0].lower() + "to be updated: ")
+	dataToBeUpdated = input("Enter " + fields[0].lower() + " to be updated: ")
+	counter = 1
+	for field in fields:
+		if field == fields[0]:
+			pass
+		elif field == fields[-1]:
+			pass
+		else:
+			print(counter - 1, ".", field)
+		counter += 1
+	choice = int(input("Enter choice: "))
 
-	cursor = connection.execute("SELECT * FROM {}".format(tableName))
-	found = 0
-	for data in cursor:
-		if data[0] == dataToBeUpdated:
-			
-			print("Chose any one of the following to update: ")
-			counter = 1
-			for field in fields:
-				if field == fields[0]:
-					pass
-				else:
-					print(counter - 1, ".", field)
-				counter += 1
+	try:
+		
+		updateData = input("Enter {} to update: ".format(fields[choice]))
+		cursor.execute("UPDATE {} SET {} = '{}' WHERE {} = '{}' ".format(tableName, fields[choice], updateData, fields[0], dataToBeUpdated))
+		connection.commit()
+		print("\n{} Number of row(s) affected".format(cursor.rowcount))
 
-			choice = int(input("Enter choice: "))
-			updateData = input("Enter {} to update: ".format(fields[choice]))				
-			connection.execute("UPDATE {} SET {} = '{}' WHERE {} = '{}' ".format(tableName, fields[choice], updateData, fields[0], data[0]))
-			found = 1
-			connection.commit()
-
-	if found == 0:
-		print("No such id ")
-	else:
-		print("Updated Successfully.")
-
-
+	except Exception as e:
+		print("Error ", e)
+	
 def deleteRecord():
-	cursor = connection.execute("SELECT * FROM {}".format(tableName))
-	found = 0
-	dataToBeDeleted = input("Enter data to be deleted: ")
-	for data in cursor:
-		if data[0] == dataToBeDeleted:
-			found = 1
-			connection.execute("DELETE FROM {} WHERE {} = '{}'".format(tableName, fields[0], dataToBeDeleted))
-			connection.commit()
+	dataToBeDeleted = input("Enter " + fields[0].lower() + " to be deleted: ")
 
-	if found == 0:
-		print("\nEntered data is wrong.")
-	else:
-		print("\nData Deleted successfully.")
+	try:
+		cursor.execute("UPDATE {} SET {} = '0' WHERE {} = '{}' ".format(tableName, fields[-1], fields[0], dataToBeDeleted))
+		connection.commit()
+		print("\n{} Number of row(s) affected".format(cursor.rowcount))
+		print("\nDeletion successful.")
+
+	except Exception as e:
+		print("Error ", e)
+		cursor.rollback()
+
 
 def exitMenu():
 	connection.close()
